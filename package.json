@@ -1,0 +1,18 @@
+{
+  "name": "demo-json-server",
+  "version": "1.0.0",
+  "description": "Demo JSON server for insurance policy data",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "json-server": "^1.0.0-beta.3"
+  },
+  "packageManager": "yarn@1.22.22"
+}

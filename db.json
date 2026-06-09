@@ -1,0 +1,182 @@
+{
+  "policy": [
+    {
+      "id": "POL-001",
+      "policyNumber": "NWM-2025-001",
+      "type": "auto",
+      "status": "active",
+      "holder": {
+        "firstName": "James",
+        "lastName": "Mitchell",
+        "email": "james.mitchell@example.com",
+        "phone": "555-0101",
+        "dateOfBirth": "1982-03-15"
+      },
+      "vehicle": {
+        "make": "Toyota",
+        "model": "Camry",
+        "year": 2022,
+        "vin": "4T1BF1FK5CU123456",
+        "licensePlate": "ABC-1234"
+      },
+      "coverage": {
+        "liability": 100000,
+        "collision": 50000,
+        "comprehensive": 50000,
+        "deductible": 500,
+        "uninsuredMotorist": true
+      },
+      "premium": {
+        "monthly": 125.00,
+        "annual": 1500.00,
+        "currency": "USD"
+      },
+      "effectiveDate": "2025-01-01",
+      "expirationDate": "2026-01-01",
+      "createdAt": "2024-12-15T10:00:00Z",
+      "updatedAt": "2024-12-15T10:00:00Z"
+    },
+    {
+      "id": "POL-002",
+      "policyNumber": "NWM-2025-002",
+      "type": "home",
+      "status": "active",
+      "holder": {
+        "firstName": "Sarah",
+        "lastName": "Thompson",
+        "email": "sarah.thompson@example.com",
+        "phone": "555-0202",
+        "dateOfBirth": "1975-07-22"
+      },
+      "property": {
+        "address": "42 Maple Street",
+        "city": "Springfield",
+        "state": "IL",
+        "zip": "62701",
+        "type": "single-family",
+        "yearBuilt": 1998,
+        "squareFeet": 2100
+      },
+      "coverage": {
+        "dwelling": 350000,
+        "personalProperty": 100000,
+        "liability": 300000,
+        "additionalLivingExpenses": 50000,
+        "deductible": 1000
+      },
+      "premium": {
+        "monthly": 210.00,
+        "annual": 2520.00,
+        "currency": "USD"
+      },
+      "effectiveDate": "2025-03-01",
+      "expirationDate": "2026-03-01",
+      "createdAt": "2025-02-10T09:30:00Z",
+      "updatedAt": "2025-02-10T09:30:00Z"
+    },
+    {
+      "id": "POL-003",
+      "policyNumber": "NWM-2025-003",
+      "type": "life",
+      "status": "active",
+      "holder": {
+        "firstName": "David",
+        "lastName": "Nguyen",
+        "email": "david.nguyen@example.com",
+        "phone": "555-0303",
+        "dateOfBirth": "1990-11-08"
+      },
+      "coverage": {
+        "faceValue": 500000,
+        "termYears": 20,
+        "beneficiary": {
+          "name": "Lisa Nguyen",
+          "relationship": "spouse"
+        }
+      },
+      "premium": {
+        "monthly": 45.00,
+        "annual": 540.00,
+        "currency": "USD"
+      },
+      "effectiveDate": "2025-02-15",
+      "expirationDate": "2045-02-15",
+      "createdAt": "2025-01-20T14:00:00Z",
+      "updatedAt": "2025-01-20T14:00:00Z"
+    },
+    {
+      "id": "POL-004",
+      "policyNumber": "NWM-2025-004",
+      "type": "auto",
+      "status": "pending",
+      "holder": {
+        "firstName": "Maria",
+        "lastName": "Garcia",
+        "email": "maria.garcia@example.com",
+        "phone": "555-0404",
+        "dateOfBirth": "1988-05-30"
+      },
+      "vehicle": {
+        "make": "Honda",
+        "model": "CR-V",
+        "year": 2023,
+        "vin": "2HKRM4H70PH123456",
+        "licensePlate": "XYZ-5678"
+      },
+      "coverage": {
+        "liability": 250000,
+        "collision": 50000,
+        "comprehensive": 50000,
+        "deductible": 1000,
+        "uninsuredMotorist": true
+      },
+      "premium": {
+        "monthly": 148.00,
+        "annual": 1776.00,
+        "currency": "USD"
+      },
+      "effectiveDate": "2025-07-01",
+      "expirationDate": "2026-07-01",
+      "createdAt": "2025-06-01T11:00:00Z",
+      "updatedAt": "2025-06-01T11:00:00Z"
+    },
+    {
+      "id": "POL-005",
+      "policyNumber": "NWM-2024-005",
+      "type": "home",
+      "status": "expired",
+      "holder": {
+        "firstName": "Robert",
+        "lastName": "Kim",
+        "email": "robert.kim@example.com",
+        "phone": "555-0505",
+        "dateOfBirth": "1965-09-12"
+      },
+      "property": {
+        "address": "18 Oak Avenue",
+        "city": "Portland",
+        "state": "OR",
+        "zip": "97201",
+        "type": "condo",
+        "yearBuilt": 2005,
+        "squareFeet": 1400
+      },
+      "coverage": {
+        "dwelling": 200000,
+        "personalProperty": 60000,
+        "liability": 100000,
+        "additionalLivingExpenses": 20000,
+        "deductible": 500
+      },
+      "premium": {
+        "monthly": 130.00,
+        "annual": 1560.00,
+        "currency": "USD"
+      },
+      "effectiveDate": "2024-01-01",
+      "expirationDate": "2025-01-01",
+      "createdAt": "2023-12-01T08:00:00Z",
+      "updatedAt": "2023-12-01T08:00:00Z"
+    }
+  ]
+}

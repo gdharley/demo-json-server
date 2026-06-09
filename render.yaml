@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: demo-json-server
+    env: node
+    plan: free
+    buildCommand: yarn install --frozen-lockfile
+    startCommand: yarn start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+    autoDeploy: true
