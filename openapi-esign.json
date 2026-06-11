@@ -1,0 +1,344 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NWM Demo eSign API",
+    "description": "DocuSign-style envelope signing flow for demos and prototyping. No authentication or API keys required.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
+    },
+    {
+      "url": "https://demo-json-server.onrender.com",
+      "description": "Render.com deployment"
+    }
+  ],
+  "tags": [
+    {
+      "name": "eSign",
+      "description": "DocuSign-style envelope signing flow"
+    }
+  ],
+  "paths": {
+    "/esign/envelopes": {
+      "post": {
+        "tags": ["eSign"],
+        "summary": "Create a signing envelope",
+        "description": "Creates a signing envelope. Always returns envelope ID ENV-DEMO-001. The accountId should be taken from the accounts[0].accountId field returned by GET /esign/userinfo.",
+        "operationId": "createEnvelope",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnvelopeInput"
+              },
+              "example": {
+                "signerName": "James Mitchell",
+                "signerEmail": "james.mitchell@example.com",
+                "accountId": "DEMO-ACCOUNT-001",
+                "documentName": "Life Policy NWM-2025-001",
+                "documentContent": "dGhpcyBpcyBhIHRlc3Q=",
+                "subject": "Please sign your policy document"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Envelope created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "envelopeId": "ENV-DEMO-001",
+                  "status": "created",
+                  "subject": "Please sign your policy document",
+                  "signerName": "James Mitchell",
+                  "signerEmail": "james.mitchell@example.com",
+                  "accountId": "DEMO-ACCOUNT-001",
+                  "documentName": "Life Policy NWM-2025-001",
+                  "documentContent": "dGhpcyBpcyBhIHRlc3Q=",
+                  "createdAt": "2026-06-11T10:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/esign/userinfo": {
+      "get": {
+        "tags": ["eSign"],
+        "summary": "Get user info by email",
+        "description": "Returns user info for a policy holder matching the given email address. Use the returned accountId in the create envelope call.",
+        "operationId": "getUserInfo",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "description": "Email address of the policy holder",
+            "schema": {
+              "type": "string",
+              "format": "email",
+              "example": "james.mitchell@example.com"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserInfo"
+                },
+                "example": {
+                  "sub": "amFtZXMubWl0Y2hlbGxAZXhhbXBsZS5jb20=",
+                  "name": "James Mitchell",
+                  "email": "james.mitchell@example.com",
+                  "given_name": "James",
+                  "family_name": "Mitchell",
+                  "accounts": [
+                    {
+                      "accountId": "DEMO-ACCOUNT-001",
+                      "accountName": "NWM Demo Account",
+                      "isDefault": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string", "example": "User not found" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/esign/envelopes/{envelopeId}/status": {
+      "parameters": [
+        {
+          "name": "envelopeId",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string", "example": "ENV-DEMO-001" }
+        }
+      ],
+      "get": {
+        "tags": ["eSign"],
+        "summary": "Get envelope status",
+        "description": "Returns the status of an envelope. Always returns 'completed' regardless of the envelope ID supplied.",
+        "operationId": "getEnvelopeStatus",
+        "responses": {
+          "200": {
+            "description": "Envelope status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "envelopeId": { "type": "string", "example": "ENV-DEMO-001" },
+                    "status": { "type": "string", "example": "completed" },
+                    "completedAt": { "type": "string", "format": "date-time" }
+                  }
+                },
+                "example": {
+                  "envelopeId": "ENV-DEMO-001",
+                  "status": "completed",
+                  "completedAt": "2026-06-11T10:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/esign/envelopes/{envelopeId}/documents": {
+      "parameters": [
+        {
+          "name": "envelopeId",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string", "example": "ENV-DEMO-001" }
+        }
+      ],
+      "get": {
+        "tags": ["eSign"],
+        "summary": "List envelope documents",
+        "description": "Returns the list of documents attached to the envelope. Always returns a single document.",
+        "operationId": "listEnvelopeDocuments",
+        "responses": {
+          "200": {
+            "description": "Document list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "envelopeId": { "type": "string", "example": "ENV-DEMO-001" },
+                    "documents": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/DocumentSummary" }
+                    }
+                  }
+                },
+                "example": {
+                  "envelopeId": "ENV-DEMO-001",
+                  "documents": [
+                    {
+                      "documentId": "1",
+                      "name": "Policy Document",
+                      "type": "content",
+                      "uri": "/esign/envelopes/ENV-DEMO-001/documents/1/content"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/esign/envelopes/{envelopeId}/documents/{documentId}/content": {
+      "parameters": [
+        {
+          "name": "envelopeId",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string", "example": "ENV-DEMO-001" }
+        },
+        {
+          "name": "documentId",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string", "example": "1" }
+        }
+      ],
+      "get": {
+        "tags": ["eSign"],
+        "summary": "Get document content",
+        "description": "Returns document content as a base64-encoded string. contentType is always text/plain.",
+        "operationId": "getDocumentContent",
+        "responses": {
+          "200": {
+            "description": "Document content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentContent"
+                },
+                "example": {
+                  "documentId": "1",
+                  "envelopeId": "ENV-DEMO-001",
+                  "contentType": "text/plain",
+                  "data": "dGhpcyBpcyBhIHRlc3Q="
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EnvelopeInput": {
+        "type": "object",
+        "required": ["signerName", "signerEmail", "accountId"],
+        "properties": {
+          "signerName": { "type": "string", "example": "James Mitchell" },
+          "signerEmail": { "type": "string", "format": "email", "example": "james.mitchell@example.com" },
+          "accountId": {
+            "type": "string",
+            "description": "Account ID returned by the /esign/userinfo call",
+            "example": "DEMO-ACCOUNT-001"
+          },
+          "documentName": { "type": "string", "example": "Life Policy NWM-2025-001" },
+          "documentContent": {
+            "type": "string",
+            "description": "Base64-encoded document content",
+            "example": "dGhpcyBpcyBhIHRlc3Q="
+          },
+          "subject": { "type": "string", "example": "Please sign your policy document" }
+        }
+      },
+      "Envelope": {
+        "type": "object",
+        "properties": {
+          "envelopeId": { "type": "string", "example": "ENV-DEMO-001" },
+          "status": { "type": "string", "example": "created" },
+          "subject": { "type": "string", "example": "Please sign your policy document" },
+          "signerName": { "type": "string", "example": "James Mitchell" },
+          "signerEmail": { "type": "string", "format": "email", "example": "james.mitchell@example.com" },
+          "accountId": {
+            "type": "string",
+            "description": "Account ID as supplied in the request",
+            "example": "DEMO-ACCOUNT-001"
+          },
+          "documentName": { "type": "string", "example": "Life Policy NWM-2025-001" },
+          "documentContent": {
+            "type": "string",
+            "description": "Base64-encoded document content as supplied in the request",
+            "example": "dGhpcyBpcyBhIHRlc3Q="
+          },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UserInfo": {
+        "type": "object",
+        "properties": {
+          "sub": { "type": "string", "description": "Base64-encoded email used as subject identifier", "example": "amFtZXMubWl0Y2hlbGxAZXhhbXBsZS5jb20=" },
+          "name": { "type": "string", "example": "James Mitchell" },
+          "email": { "type": "string", "format": "email", "example": "james.mitchell@example.com" },
+          "given_name": { "type": "string", "example": "James" },
+          "family_name": { "type": "string", "example": "Mitchell" },
+          "accounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "accountId": { "type": "string", "example": "DEMO-ACCOUNT-001" },
+                "accountName": { "type": "string", "example": "NWM Demo Account" },
+                "isDefault": { "type": "boolean", "example": true }
+              }
+            }
+          }
+        }
+      },
+      "DocumentSummary": {
+        "type": "object",
+        "properties": {
+          "documentId": { "type": "string", "example": "1" },
+          "name": { "type": "string", "example": "Policy Document" },
+          "type": { "type": "string", "example": "content" },
+          "uri": { "type": "string", "example": "/esign/envelopes/ENV-DEMO-001/documents/1/content" }
+        }
+      },
+      "DocumentContent": {
+        "type": "object",
+        "properties": {
+          "documentId": { "type": "string", "example": "1" },
+          "envelopeId": { "type": "string", "example": "ENV-DEMO-001" },
+          "contentType": { "type": "string", "example": "text/plain" },
+          "data": { "type": "string", "description": "Base64-encoded document content", "example": "dGhpcyBpcyBhIHRlc3Q=" }
+        }
+      }
+    }
+  }
+}
