@@ -18,6 +18,7 @@
         "cashValue": 42750.00,
         "beneficiary": {
           "name": "Patricia Mitchell",
+          "email": "patricia.mitchell@example.com",
           "relationship": "spouse"
         }
       },
@@ -53,6 +54,7 @@
         "cashValue": 0.00,
         "beneficiary": {
           "name": "Mark Thompson",
+          "email": "mark.thompson@example.com",
           "relationship": "spouse"
         }
       },
@@ -88,6 +90,7 @@
         "cashValue": 8420.50,
         "beneficiary": {
           "name": "Lisa Nguyen",
+          "email": "lisa.nguyen@example.com",
           "relationship": "spouse"
         }
       },
@@ -123,6 +126,7 @@
         "cashValue": 0.00,
         "beneficiary": {
           "name": "Carlos Garcia",
+          "email": "carlos.garcia@example.com",
           "relationship": "spouse"
         }
       },
@@ -158,6 +162,7 @@
         "cashValue": 0.00,
         "beneficiary": {
           "name": "Helen Kim",
+          "email": "helen.kim@example.com",
           "relationship": "spouse"
         }
       },
