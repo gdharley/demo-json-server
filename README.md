@@ -118,13 +118,17 @@ Base path: `/esign`
 
 Creates a signing envelope. Always returns envelope ID `ENV-DEMO-001`.
 
+The `accountId` should be taken from the `accounts[0].accountId` field returned by `/esign/userinfo`. The `documentContent` should be the base64-encoded content of the document to be signed.
+
 ```bash
 curl -X POST http://localhost:3000/esign/envelopes \
   -H "Content-Type: application/json" \
   -d '{
     "signerName": "James Mitchell",
     "signerEmail": "james.mitchell@example.com",
+    "accountId": "DEMO-ACCOUNT-001",
     "documentName": "Life Policy NWM-2025-001",
+    "documentContent": "dGhpcyBpcyBhIHRlc3Q=",
     "subject": "Please sign your policy document"
   }'
 ```
@@ -136,7 +140,9 @@ curl -X POST http://localhost:3000/esign/envelopes \
   "subject": "Please sign your policy document",
   "signerName": "James Mitchell",
   "signerEmail": "james.mitchell@example.com",
+  "accountId": "DEMO-ACCOUNT-001",
   "documentName": "Life Policy NWM-2025-001",
+  "documentContent": "dGhpcyBpcyBhIHRlc3Q=",
   "createdAt": "2026-06-11T10:00:00.000Z"
 }
 ```

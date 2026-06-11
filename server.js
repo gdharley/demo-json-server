@@ -26,7 +26,9 @@ mainApp.post('/esign/envelopes', (req, res) => {
   const {
     signerName,
     signerEmail,
+    accountId,
     documentName = 'Policy Document',
+    documentContent,
     subject = 'Please sign this document'
   } = req.body ?? {}
 
@@ -36,7 +38,9 @@ mainApp.post('/esign/envelopes', (req, res) => {
     subject,
     signerName,
     signerEmail,
+    accountId,
     documentName,
+    documentContent,
     createdAt: new Date().toISOString()
   })
 })
