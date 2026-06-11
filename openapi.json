@@ -1,0 +1,396 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NWM Demo Policy API",
+    "description": "Mock life insurance policy API for demos and prototyping.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
+    },
+    {
+      "url": "https://demo-json-server.onrender.com",
+      "description": "Render.com deployment"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Policy",
+      "description": "Life insurance policy operations"
+    }
+  ],
+  "paths": {
+    "/policy/policy": {
+      "get": {
+        "tags": ["Policy"],
+        "summary": "List all policies",
+        "description": "Returns all policies. Supports filtering by any top-level field and pagination.",
+        "operationId": "listPolicies",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by policy status",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "pending", "lapsed"]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by policy type",
+            "schema": {
+              "type": "string",
+              "enum": ["whole-life", "term-life", "universal-life"]
+            }
+          },
+          {
+            "name": "otp_processing_allowed",
+            "in": "query",
+            "description": "Filter by over-the-phone processing flag",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "_page",
+            "in": "query",
+            "description": "Page number (used with _per_page)",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "_per_page",
+            "in": "query",
+            "description": "Number of results per page",
+            "schema": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          {
+            "name": "_sort",
+            "in": "query",
+            "description": "Field to sort by (prefix with - for descending)",
+            "schema": {
+              "type": "string",
+              "example": "-effectiveDate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of policies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Policy"
+                  }
+                },
+                "example": [
+                  {
+                    "id": "POL-001",
+                    "policyNumber": "NWM-2025-001",
+                    "type": "whole-life",
+                    "status": "active",
+                    "otp_processing_allowed": true,
+                    "holder": {
+                      "firstName": "James",
+                      "lastName": "Mitchell",
+                      "email": "james.mitchell@example.com",
+                      "phone": "555-0101",
+                      "dateOfBirth": "1972-03-15"
+                    },
+                    "coverage": {
+                      "faceValue": 500000,
+                      "cashValue": 42750.00,
+                      "beneficiary": {
+                        "name": "Patricia Mitchell",
+                        "email": "patricia.mitchell@example.com",
+                        "relationship": "spouse"
+                      }
+                    },
+                    "term": {
+                      "type": "whole-life",
+                      "years": null
+                    },
+                    "premium": {
+                      "monthly": 312.00,
+                      "annual": 3744.00,
+                      "currency": "USD"
+                    },
+                    "effectiveDate": "2010-06-01",
+                    "expirationDate": null,
+                    "createdAt": "2010-05-12T10:00:00Z",
+                    "updatedAt": "2025-01-15T08:30:00Z"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Policy"],
+        "summary": "Create a policy",
+        "operationId": "createPolicy",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Policy created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/policy/policy/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Policy ID (e.g. POL-001)",
+          "schema": {
+            "type": "string",
+            "example": "POL-001"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["Policy"],
+        "summary": "Get a policy by ID",
+        "operationId": "getPolicy",
+        "responses": {
+          "200": {
+            "description": "A single policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Policy not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Policy"],
+        "summary": "Replace a policy",
+        "operationId": "replacePolicy",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Policy replaced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Policy not found"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Policy"],
+        "summary": "Partially update a policy",
+        "operationId": "updatePolicy",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Policy updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Policy"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Policy not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Policy"],
+        "summary": "Delete a policy",
+        "operationId": "deletePolicy",
+        "responses": {
+          "200": {
+            "description": "Policy deleted"
+          },
+          "404": {
+            "description": "Policy not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Holder": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string", "example": "James" },
+          "lastName": { "type": "string", "example": "Mitchell" },
+          "email": { "type": "string", "format": "email", "example": "james.mitchell@example.com" },
+          "phone": { "type": "string", "example": "555-0101" },
+          "dateOfBirth": { "type": "string", "format": "date", "example": "1972-03-15" }
+        }
+      },
+      "Beneficiary": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "example": "Patricia Mitchell" },
+          "email": { "type": "string", "format": "email", "example": "patricia.mitchell@example.com" },
+          "relationship": { "type": "string", "example": "spouse" }
+        }
+      },
+      "Coverage": {
+        "type": "object",
+        "properties": {
+          "faceValue": { "type": "number", "example": 500000 },
+          "cashValue": { "type": "number", "example": 42750.00 },
+          "beneficiary": { "$ref": "#/components/schemas/Beneficiary" }
+        }
+      },
+      "Term": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["whole-life", "level-term", "universal"],
+            "example": "whole-life"
+          },
+          "years": {
+            "type": "integer",
+            "nullable": true,
+            "example": 20,
+            "description": "Term length in years. null for permanent policies."
+          }
+        }
+      },
+      "Premium": {
+        "type": "object",
+        "properties": {
+          "monthly": { "type": "number", "example": 312.00 },
+          "annual": { "type": "number", "example": 3744.00 },
+          "currency": { "type": "string", "example": "USD" }
+        }
+      },
+      "Policy": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "POL-001" },
+          "policyNumber": { "type": "string", "example": "NWM-2025-001" },
+          "type": {
+            "type": "string",
+            "enum": ["whole-life", "term-life", "universal-life"],
+            "example": "whole-life"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "pending", "lapsed"],
+            "example": "active"
+          },
+          "otp_processing_allowed": {
+            "type": "boolean",
+            "description": "Whether this policy can be serviced over the phone",
+            "example": true
+          },
+          "holder": { "$ref": "#/components/schemas/Holder" },
+          "coverage": { "$ref": "#/components/schemas/Coverage" },
+          "term": { "$ref": "#/components/schemas/Term" },
+          "premium": { "$ref": "#/components/schemas/Premium" },
+          "effectiveDate": { "type": "string", "format": "date", "example": "2010-06-01" },
+          "expirationDate": { "type": "string", "format": "date", "nullable": true, "example": null },
+          "createdAt": { "type": "string", "format": "date-time", "example": "2010-05-12T10:00:00Z" },
+          "updatedAt": { "type": "string", "format": "date-time", "example": "2025-01-15T08:30:00Z" }
+        }
+      },
+      "PolicyInput": {
+        "type": "object",
+        "required": ["policyNumber", "type", "status", "holder", "coverage", "term", "premium", "effectiveDate"],
+        "properties": {
+          "policyNumber": { "type": "string", "example": "NWM-2025-006" },
+          "type": {
+            "type": "string",
+            "enum": ["whole-life", "term-life", "universal-life"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "pending", "lapsed"]
+          },
+          "otp_processing_allowed": { "type": "boolean", "example": false },
+          "holder": { "$ref": "#/components/schemas/Holder" },
+          "coverage": { "$ref": "#/components/schemas/Coverage" },
+          "term": { "$ref": "#/components/schemas/Term" },
+          "premium": { "$ref": "#/components/schemas/Premium" },
+          "effectiveDate": { "type": "string", "format": "date" },
+          "expirationDate": { "type": "string", "format": "date", "nullable": true }
+        }
+      },
+      "PolicyPatch": {
+        "type": "object",
+        "description": "Any subset of Policy fields to update",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["active", "pending", "lapsed"]
+          },
+          "otp_processing_allowed": { "type": "boolean" },
+          "coverage": { "$ref": "#/components/schemas/Coverage" },
+          "premium": { "$ref": "#/components/schemas/Premium" },
+          "expirationDate": { "type": "string", "format": "date", "nullable": true }
+        }
+      }
+    }
+  }
+}
