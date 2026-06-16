@@ -1,0 +1,177 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NWM Demo MF API",
+    "description": "Lightweight endpoints emulating external system integrations for demos and prototyping. No authentication required.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
+    },
+    {
+      "url": "https://demo-json-server.onrender.com",
+      "description": "Render.com deployment"
+    }
+  ],
+  "tags": [
+    {
+      "name": "MF",
+      "description": "External system integration endpoints"
+    }
+  ],
+  "paths": {
+    "/mf/accounts": {
+      "post": {
+        "tags": ["MF"],
+        "summary": "Create an account",
+        "description": "Emulates account creation in an external system. Accepts any JSON payload and returns a 200 acknowledgement.",
+        "operationId": "createAccount",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "customerId": "C-001",
+                "name": "James Mitchell",
+                "email": "james.mitchell@example.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account creation acknowledged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AckResponse"
+                },
+                "example": {
+                  "status": "ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mf/policies/{policyId}/surrender-value": {
+      "parameters": [
+        {
+          "name": "policyId",
+          "in": "path",
+          "required": true,
+          "description": "Policy ID (e.g. POL-001)",
+          "schema": {
+            "type": "string",
+            "example": "POL-001"
+          }
+        }
+      ],
+      "get": {
+        "tags": ["MF"],
+        "summary": "Get surrender value",
+        "description": "Returns the surrender value for the given policy. The surrender value corresponds to the cash value held against the policy.",
+        "operationId": "getSurrenderValue",
+        "responses": {
+          "200": {
+            "description": "Surrender value returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SurrenderValueResponse"
+                },
+                "example": {
+                  "policyId": "POL-001",
+                  "policyNumber": "NWM-2025-001",
+                  "surrenderValue": 42750,
+                  "currency": "USD"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Policy not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string", "example": "Policy not found" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mf/fraud-investigation": {
+      "post": {
+        "tags": ["MF"],
+        "summary": "Start a fraud investigation",
+        "description": "Emulates initiating a fraud investigation in an external system. Accepts any JSON payload and returns a 200 acknowledgement.",
+        "operationId": "startFraudInvestigation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "example": {
+                "policyId": "POL-001",
+                "reason": "Suspicious claim activity",
+                "reportedBy": "agent@nwm.com"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Fraud investigation request acknowledged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AckResponse"
+                },
+                "example": {
+                  "status": "ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AckResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        }
+      },
+      "SurrenderValueResponse": {
+        "type": "object",
+        "properties": {
+          "policyId": { "type": "string", "example": "POL-001" },
+          "policyNumber": { "type": "string", "example": "NWM-2025-001" },
+          "surrenderValue": { "type": "number", "example": 42750 },
+          "currency": { "type": "string", "example": "USD" }
+        }
+      }
+    }
+  }
+}

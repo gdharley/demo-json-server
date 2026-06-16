@@ -273,6 +273,73 @@ curl http://localhost:3000/esign/envelopes/ENV-DEMO-001/documents/1/content
 
 ---
 
+## MF API
+
+Lightweight endpoints for emulating external system integrations. All endpoints accept any valid JSON body and require no authentication.
+
+Base path: `/mf`
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/mf/accounts` | Create an account in an external system |
+| GET | `/mf/policies/:policyId/surrender-value` | Get the surrender value for a policy |
+| POST | `/mf/fraud-investigation` | Start a fraud investigation |
+
+---
+
+### POST /mf/accounts
+
+Accepts any JSON payload and returns a 200 acknowledgement.
+
+```bash
+curl -X POST http://localhost:3000/mf/accounts \
+  -H "Content-Type: application/json" \
+  -d '{"customerId":"C-001","name":"James Mitchell","email":"james.mitchell@example.com"}'
+```
+
+```json
+{ "status": "ok" }
+```
+
+---
+
+### GET /mf/policies/:policyId/surrender-value
+
+Returns the surrender value for the given policy ID. The surrender value matches the `coverage.cashValue` from the policy record.
+
+```bash
+curl http://localhost:3000/mf/policies/POL-001/surrender-value
+```
+
+```json
+{
+  "policyId": "POL-001",
+  "policyNumber": "NWM-2025-001",
+  "surrenderValue": 42750,
+  "currency": "USD"
+}
+```
+
+Returns `404` if the policy ID does not exist.
+
+---
+
+### POST /mf/fraud-investigation
+
+Accepts any JSON payload describing the investigation request and returns a 200 acknowledgement.
+
+```bash
+curl -X POST http://localhost:3000/mf/fraud-investigation \
+  -H "Content-Type: application/json" \
+  -d '{"policyId":"POL-001","reason":"Suspicious claim activity","reportedBy":"agent@nwm.com"}'
+```
+
+```json
+{ "status": "ok" }
+```
+
+---
+
 ## Deployment
 
 Deployed to [Render.com](https://render.com) via `render.yaml`. Push to `main` triggers an automatic redeploy.

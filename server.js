@@ -103,6 +103,32 @@ mainApp.get('/esign/envelopes/:envelopeId/documents/:documentId/content', (req, 
   })
 })
 
+// POST /mf/accounts — create account in external system
+mainApp.post('/mf/accounts', (req, res) => {
+  send(res, 200, { status: 'ok' })
+})
+
+// GET /mf/policies/:policyId/surrender-value — return cash value for the policy
+mainApp.get('/mf/policies/:policyId/surrender-value', (req, res) => {
+  const policy = (db.data.policy ?? []).find(p => p.id === req.params.policyId)
+
+  if (!policy) {
+    return send(res, 404, { error: 'Policy not found' })
+  }
+
+  send(res, 200, {
+    policyId: policy.id,
+    policyNumber: policy.policyNumber,
+    surrenderValue: policy.coverage.cashValue,
+    currency: policy.premium.currency
+  })
+})
+
+// POST /mf/fraud-investigation — start a fraud investigation
+mainApp.post('/mf/fraud-investigation', (req, res) => {
+  send(res, 200, { status: 'ok' })
+})
+
 // Mount json-server policy routes under /policy
 const policyApp = createApp(db)
 mainApp.use('/policy', policyApp.handler.bind(policyApp))
