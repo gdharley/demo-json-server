@@ -96,6 +96,38 @@ curl http://localhost:3000/policy/policy/POL-001
 | POL-004 | NWM-2025-004 | term-life (30yr) | pending | $1,000,000 | $0 | false |
 | POL-005 | NWM-2023-005 | term-life (10yr) | lapsed | $250,000 | $0 | false |
 
+### Policy restrictions
+
+Each policy includes a `restrictions` array (0–3 items). Each restriction has a `typeCode`, `description`, and `effectiveDate`.
+
+| Type Code | Description |
+|---|---|
+| `OL` | Outstanding Loan — loan taken against cash value |
+| `SP` | Surrender Period — early surrender charges apply |
+| `CL` | Coverage Limit — benefit capped by underwriting |
+| `APL` | Automatic Premium Loan — premiums funded from cash value if unpaid |
+| `PA` | Premium Arrears — unpaid premiums outstanding |
+| `RP` | Reinstatement Period — lapsed policy within reinstatement window |
+| `DBR` | Death Benefit Reduction — benefit reduced by outstanding loan balance |
+
+| Policy | Restrictions |
+|---|---|
+| POL-001 | OL, DBR |
+| POL-002 | CL |
+| POL-003 | SP, OL, APL |
+| POL-004 | _(none)_ |
+| POL-005 | PA, RP |
+
+```json
+"restrictions": [
+  {
+    "typeCode": "OL",
+    "description": "Outstanding policy loan of $12,500 against cash value. Unpaid balance will reduce death benefit.",
+    "effectiveDate": "2023-03-10"
+  }
+]
+```
+
 ---
 
 ## eSign API

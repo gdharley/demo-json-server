@@ -344,6 +344,11 @@
           "premium": { "$ref": "#/components/schemas/Premium" },
           "effectiveDate": { "type": "string", "format": "date", "example": "2010-06-01" },
           "expirationDate": { "type": "string", "format": "date", "nullable": true, "example": null },
+          "restrictions": {
+            "type": "array",
+            "description": "Active restrictions on the policy. Empty array indicates no restrictions.",
+            "items": { "$ref": "#/components/schemas/Restriction" }
+          },
           "createdAt": { "type": "string", "format": "date-time", "example": "2010-05-12T10:00:00Z" },
           "updatedAt": { "type": "string", "format": "date-time", "example": "2025-01-15T08:30:00Z" }
         }
@@ -368,6 +373,28 @@
           "premium": { "$ref": "#/components/schemas/Premium" },
           "effectiveDate": { "type": "string", "format": "date" },
           "expirationDate": { "type": "string", "format": "date", "nullable": true }
+        }
+      },
+      "Restriction": {
+        "type": "object",
+        "properties": {
+          "typeCode": {
+            "type": "string",
+            "description": "Code identifying the restriction type",
+            "enum": ["OL", "SP", "CL", "APL", "PA", "RP", "DBR"],
+            "example": "OL"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the restriction",
+            "example": "Outstanding policy loan of $12,500 against cash value."
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date the restriction came into effect",
+            "example": "2023-03-10"
+          }
         }
       },
       "PolicyPatch": {

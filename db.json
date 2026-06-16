@@ -33,6 +33,18 @@
       },
       "effectiveDate": "2010-06-01",
       "expirationDate": null,
+      "restrictions": [
+        {
+          "typeCode": "OL",
+          "description": "Outstanding policy loan of $12,500 against cash value. Unpaid balance will reduce death benefit.",
+          "effectiveDate": "2023-03-10"
+        },
+        {
+          "typeCode": "DBR",
+          "description": "Death benefit reduced by outstanding loan balance plus accrued interest.",
+          "effectiveDate": "2023-03-10"
+        }
+      ],
       "createdAt": "2010-05-12T10:00:00Z",
       "updatedAt": "2025-01-15T08:30:00Z"
     },
@@ -69,6 +81,13 @@
       },
       "effectiveDate": "2018-09-01",
       "expirationDate": "2038-09-01",
+      "restrictions": [
+        {
+          "typeCode": "CL",
+          "description": "Coverage limit applied. Maximum benefit capped at $750,000 per underwriting guidelines for applicant age and health classification.",
+          "effectiveDate": "2018-09-01"
+        }
+      ],
       "createdAt": "2018-08-10T09:30:00Z",
       "updatedAt": "2025-03-01T11:00:00Z"
     },
@@ -105,6 +124,23 @@
       },
       "effectiveDate": "2020-02-15",
       "expirationDate": null,
+      "restrictions": [
+        {
+          "typeCode": "SP",
+          "description": "Policy is within the 10-year surrender charge period. Early surrender will incur a charge of 6% on the surrender value.",
+          "effectiveDate": "2020-02-15"
+        },
+        {
+          "typeCode": "OL",
+          "description": "Outstanding policy loan of $3,200 against cash value.",
+          "effectiveDate": "2024-07-01"
+        },
+        {
+          "typeCode": "APL",
+          "description": "Automatic Premium Loan provision is active. Premiums may be funded from cash value if payment is not received within the grace period.",
+          "effectiveDate": "2020-02-15"
+        }
+      ],
       "createdAt": "2020-01-20T14:00:00Z",
       "updatedAt": "2025-02-28T09:00:00Z"
     },
@@ -141,6 +177,7 @@
       },
       "effectiveDate": "2025-07-01",
       "expirationDate": "2055-07-01",
+      "restrictions": [],
       "createdAt": "2025-06-01T11:00:00Z",
       "updatedAt": "2025-06-01T11:00:00Z"
     },
@@ -177,6 +214,18 @@
       },
       "effectiveDate": "2015-04-01",
       "expirationDate": "2025-04-01",
+      "restrictions": [
+        {
+          "typeCode": "PA",
+          "description": "Policy lapsed due to non-payment of premiums. Three months of arrears outstanding totalling $285.00.",
+          "effectiveDate": "2024-11-01"
+        },
+        {
+          "typeCode": "RP",
+          "description": "Policy is within the 24-month reinstatement period. Reinstatement requires payment of all outstanding premiums plus interest and evidence of insurability.",
+          "effectiveDate": "2024-11-01"
+        }
+      ],
       "createdAt": "2015-03-10T08:00:00Z",
       "updatedAt": "2024-11-15T10:00:00Z"
     }
