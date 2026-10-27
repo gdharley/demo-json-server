@@ -9,7 +9,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.12.1"
   },
   "dependencies": {
     "json-server": "^1.0.0-beta.3"
