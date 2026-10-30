@@ -113,6 +113,7 @@
                       "cashValue": 42750.00,
                       "beneficiary": {
                         "name": "Patricia Mitchell",
+                        "dateOfBirth": "1974-08-02",
                         "email": "patricia.mitchell@example.com",
                         "relationship": "spouse"
                       }
@@ -282,6 +283,7 @@
         "type": "object",
         "properties": {
           "name": { "type": "string", "example": "Patricia Mitchell" },
+          "dateOfBirth": { "type": "string", "format": "date", "example": "1974-08-02" },
           "email": { "type": "string", "format": "email", "example": "patricia.mitchell@example.com" },
           "relationship": { "type": "string", "example": "spouse" }
         }
