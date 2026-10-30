@@ -134,6 +134,22 @@ Each policy includes a `restrictions` array (0–3 items). Each restriction has 
 
 A DocuSign-style eSign flow. No authentication or API keys required.
 
+Envelopes created through this server are stateful and resolve on their own:
+`sent` for the first 40% of the signing window, then `delivered`, then
+`completed`. The window defaults to 45 seconds and is set with the
+`SIGNING_SECONDS` environment variable.
+
+Two levers help when demonstrating:
+
+- A `signerEmail` containing `decline` resolves to `declined` instead of
+  `completed`.
+- `?force=completed` or `?force=declined` on the status endpoint skips the wait.
+
+Envelope state is held in memory, so a restart loses it. An envelope id this
+server does not recognise answers as it always did — status `completed` and the
+original placeholder document — so anything built against the previous
+behaviour keeps working.
+
 Base path: `/esign`
 
 | Method | Path | Description |
@@ -148,7 +164,7 @@ Base path: `/esign`
 
 ### POST /esign/envelopes
 
-Creates a signing envelope. Always returns envelope ID `ENV-DEMO-001`.
+Creates a signing envelope and returns its unique id (`ENV-0001`, `ENV-0002`, and so on). The envelope starts in `sent`.
 
 The `accountId` should be taken from the `accounts[0].accountId` field returned by `/esign/userinfo`. The `documentContent` should be the base64-encoded content of the document to be signed.
 
@@ -167,14 +183,15 @@ curl -X POST http://localhost:3000/esign/envelopes \
 
 ```json
 {
-  "envelopeId": "ENV-DEMO-001",
-  "status": "created",
+  "envelopeId": "ENV-0001",
+  "status": "sent",
   "subject": "Please sign your policy document",
   "signerName": "James Mitchell",
   "signerEmail": "james.mitchell@example.com",
   "accountId": "DEMO-ACCOUNT-001",
   "documentName": "Life Policy NWM-2025-001",
   "documentContent": "dGhpcyBpcyBhIHRlc3Q=",
+  "expectedCompletionSeconds": 45,
   "createdAt": "2026-06-11T10:00:00.000Z"
 }
 ```
@@ -212,18 +229,25 @@ Returns `404` if the email does not match a policy holder.
 
 ### GET /esign/envelopes/:envelopeId/status
 
-Returns the status of an envelope. Always returns `completed` regardless of the envelope ID supplied.
+Returns the current status of an envelope: `sent`, `delivered`, `completed` or `declined`. Unknown envelope ids return `completed`.
 
 ```bash
-curl http://localhost:3000/esign/envelopes/ENV-DEMO-001/status
+curl http://localhost:3000/esign/envelopes/ENV-0001/status
 ```
 
 ```json
 {
-  "envelopeId": "ENV-DEMO-001",
-  "status": "completed",
-  "completedAt": "2026-06-11T10:00:00.000Z"
+  "envelopeId": "ENV-0001",
+  "status": "delivered",
+  "secondsElapsed": 12,
+  "expectedCompletionSeconds": 45
 }
+```
+
+Skip the wait:
+
+```bash
+curl "http://localhost:3000/esign/envelopes/ENV-0001/status?force=completed"
 ```
 
 ---

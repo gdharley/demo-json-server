@@ -13,6 +13,54 @@ const HOST = process.env.HOST ?? '0.0.0.0'
 
 const DEMO_CONTENT_B64 = Buffer.from('this is a test').toString('base64')
 
+// Envelopes created through this server, keyed by envelope id. Held in memory:
+// a restart loses them, and any envelope id this server does not recognise falls
+// back to the original always-completed behaviour so existing demos keep working.
+const envelopes = new Map()
+let envelopeSequence = 0
+
+// How long an envelope takes to come back signed. Short enough to demo, long
+// enough that the waiting is visible. Override with SIGNING_SECONDS.
+const SIGNING_SECONDS = parseInt(process.env.SIGNING_SECONDS ?? '45')
+
+function envelopeStatus(envelope) {
+  if (envelope.terminalStatus) {
+    return envelope.terminalStatus
+  }
+
+  const elapsed = (Date.now() - envelope.createdAt) / 1000
+  if (elapsed < SIGNING_SECONDS * 0.4) {
+    return 'sent'
+  }
+  if (elapsed < SIGNING_SECONDS) {
+    return 'delivered'
+  }
+  return envelope.declines ? 'declined' : 'completed'
+}
+
+function executedDocument(envelope, status) {
+  if (envelope.documentContent) {
+    return envelope.documentContent
+  }
+
+  const signedAt = new Date().toISOString()
+  return Buffer.from(
+    [
+      envelope.documentName.toUpperCase(),
+      '',
+      `Envelope:  ${envelope.envelopeId}`,
+      `Subject:   ${envelope.subject}`,
+      `Signer:    ${envelope.signerName} <${envelope.signerEmail}>`,
+      `Account:   ${envelope.accountId}`,
+      '',
+      status === 'completed'
+        ? `Executed by ${envelope.signerName} on ${signedAt}.`
+        : `Declined by ${envelope.signerName} on ${signedAt}.`
+    ].join('\n')
+  ).toString('base64')
+}
+
+
 function send(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json' })
   res.end(JSON.stringify(body))
@@ -32,16 +80,32 @@ mainApp.post('/esign/envelopes', (req, res) => {
     subject = 'Please sign this document'
   } = req.body ?? {}
 
-  send(res, 201, {
-    envelopeId: 'ENV-DEMO-001',
-    status: 'created',
+  const envelopeId = `ENV-${String(++envelopeSequence).padStart(4, '0')}`
+  const envelope = {
+    envelopeId,
     subject,
     signerName,
     signerEmail,
     accountId,
     documentName,
     documentContent,
-    createdAt: new Date().toISOString()
+    // A signer address containing "decline" exercises the unhappy path.
+    declines: (signerEmail ?? '').toLowerCase().includes('decline'),
+    createdAt: Date.now()
+  }
+  envelopes.set(envelopeId, envelope)
+
+  send(res, 201, {
+    envelopeId,
+    status: 'sent',
+    subject,
+    signerName,
+    signerEmail,
+    accountId,
+    documentName,
+    documentContent,
+    expectedCompletionSeconds: SIGNING_SECONDS,
+    createdAt: new Date(envelope.createdAt).toISOString()
   })
 })
 
@@ -70,23 +134,48 @@ mainApp.get('/esign/userinfo', (req, res) => {
   })
 })
 
-// GET /esign/envelopes/:envelopeId/status — always returns completed
+// GET /esign/envelopes/:envelopeId/status — sent, then delivered, then completed
+// ?force=completed|declined jumps an envelope straight to that state.
 mainApp.get('/esign/envelopes/:envelopeId/status', (req, res) => {
+  const { envelopeId } = req.params
+  const envelope = envelopes.get(envelopeId)
+
+  if (!envelope) {
+    // Unknown to this server: answer as it always did.
+    return send(res, 200, {
+      envelopeId,
+      status: 'completed',
+      completedAt: new Date().toISOString()
+    })
+  }
+
+  const forced = req.query?.force
+  if (forced === 'completed' || forced === 'declined') {
+    envelope.terminalStatus = forced
+  }
+
+  const status = envelopeStatus(envelope)
   send(res, 200, {
-    envelopeId: req.params.envelopeId,
-    status: 'completed',
-    completedAt: new Date().toISOString()
+    envelopeId,
+    status,
+    secondsElapsed: Math.round((Date.now() - envelope.createdAt) / 1000),
+    expectedCompletionSeconds: SIGNING_SECONDS,
+    ...(status === 'completed' || status === 'declined'
+      ? { completedAt: new Date().toISOString() }
+      : {})
   })
 })
 
 // GET /esign/envelopes/:envelopeId/documents — single document
 mainApp.get('/esign/envelopes/:envelopeId/documents', (req, res) => {
   const { envelopeId } = req.params
+  const envelope = envelopes.get(envelopeId)
+
   send(res, 200, {
     envelopeId,
     documents: [{
       documentId: '1',
-      name: 'Policy Document',
+      name: envelope?.documentName ?? 'Policy Document',
       type: 'content',
       uri: `/esign/envelopes/${envelopeId}/documents/1/content`
     }]
@@ -95,11 +184,35 @@ mainApp.get('/esign/envelopes/:envelopeId/documents', (req, res) => {
 
 // GET /esign/envelopes/:envelopeId/documents/:documentId/content — base64 "this is a test"
 mainApp.get('/esign/envelopes/:envelopeId/documents/:documentId/content', (req, res) => {
+  const { envelopeId, documentId } = req.params
+  const envelope = envelopes.get(envelopeId)
+
+  if (!envelope) {
+    // Unknown to this server: answer as it always did.
+    return send(res, 200, {
+      documentId,
+      envelopeId,
+      contentType: 'text/plain',
+      data: DEMO_CONTENT_B64
+    })
+  }
+
+  const status = envelopeStatus(envelope)
+  if (status !== 'completed' && status !== 'declined') {
+    return send(res, 409, {
+      error: 'Envelope is not yet resolved',
+      envelopeId,
+      status,
+      detail: 'The executed document is available once the envelope reaches completed or declined.'
+    })
+  }
+
   send(res, 200, {
-    documentId: req.params.documentId,
-    envelopeId: req.params.envelopeId,
+    documentId,
+    envelopeId,
+    status,
     contentType: 'text/plain',
-    data: DEMO_CONTENT_B64
+    data: executedDocument(envelope, status)
   })
 })
 
