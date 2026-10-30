@@ -130,6 +130,24 @@ Each policy includes a `restrictions` array (0–3 items). Each restriction has 
 
 ---
 
+## OpenAPI
+
+The specifications are served, so tooling can be pointed at a URL rather than a
+checked-out file.
+
+| Path | Contents |
+|---|---|
+| `/openapi.json` | Every operation this server exposes, merged into one document |
+| `/openapi/policy.json` | Policy data only |
+| `/openapi/esign.json` | eSign only |
+| `/openapi/mf.json` | Surrender value, accounts and fraud investigation |
+
+```bash
+curl https://demo-json-server-9cam.onrender.com/openapi.json
+```
+
+---
+
 ## eSign API
 
 A DocuSign-style eSign flow. No authentication or API keys required.

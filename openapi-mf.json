@@ -7,12 +7,12 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Local development"
-    },
-    {
       "url": "https://demo-json-server-9cam.onrender.com",
       "description": "Render.com deployment"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development"
     }
   ],
   "tags": [

@@ -4,6 +4,7 @@ import { createApp } from 'json-server/lib/app.js'
 import { App } from '@tinyhttp/app'
 import { cors } from '@tinyhttp/cors'
 import { json } from 'milliparsec'
+import { readFileSync } from 'node:fs'
 
 const db = new Low(new JSONFile('db.json'), {})
 await db.read()
@@ -64,6 +65,34 @@ function executedDocument(envelope, status) {
 function send(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json' })
   res.end(JSON.stringify(body))
+}
+
+// The OpenAPI descriptions, served so tooling can be pointed at a URL rather
+// than a checked-out file. /openapi.json merges all three; the parts are also
+// available individually. Nothing in them collides, so the merge is a union.
+const SPEC_FILES = {
+  policy: 'openapi-policy.json',
+  esign: 'openapi-esign.json',
+  mf: 'openapi-mf.json'
+}
+
+const specs = Object.fromEntries(
+  Object.entries(SPEC_FILES).map(([name, file]) => [name, JSON.parse(readFileSync(file, 'utf-8'))])
+)
+
+const mergedSpec = {
+  openapi: specs.policy.openapi,
+  info: {
+    title: 'Demo JSON Server',
+    description: 'Mock life insurance policy data, a DocuSign-style eSign API, and supporting operations.',
+    version: specs.policy.info.version
+  },
+  servers: specs.policy.servers,
+  tags: Object.values(specs).flatMap(s => s.tags ?? []),
+  paths: Object.assign({}, ...Object.values(specs).map(s => s.paths)),
+  components: {
+    schemas: Object.assign({}, ...Object.values(specs).map(s => s.components?.schemas ?? {}))
+  }
 }
 
 const mainApp = new App()
@@ -242,6 +271,26 @@ mainApp.post('/mf/fraud-investigation', (req, res) => {
   send(res, 200, { status: 'ok' })
 })
 
+// GET /openapi.json — every operation this server exposes, in one document
+mainApp.get('/openapi.json', (req, res) => {
+  send(res, 200, mergedSpec)
+})
+
+// GET /openapi/:name.json — policy, esign or mf on their own
+mainApp.get('/openapi/:name', (req, res) => {
+  const name = req.params.name.replace(/\.json$/, '')
+  const spec = specs[name]
+
+  if (!spec) {
+    return send(res, 404, {
+      error: 'Unknown specification',
+      available: Object.keys(specs)
+    })
+  }
+
+  send(res, 200, spec)
+})
+
 // Mount json-server policy routes under /policy
 const policyApp = createApp(db)
 mainApp.use('/policy', policyApp.handler.bind(policyApp))
@@ -250,4 +299,5 @@ mainApp.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
   console.log(`Policy:  http://${HOST}:${PORT}/policy/policy`)
   console.log(`eSign:   http://${HOST}:${PORT}/esign/envelopes`)
+  console.log(`OpenAPI: http://${HOST}:${PORT}/openapi.json`)
 }, HOST)
